@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RiskCoast WebRiskTool</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<meta charset="UTF-8">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+        crossorigin=""/>
+    <link rel="stylesheet" href="../css/leaflet-sidebar.css" />
+
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        html, body, #map {
+            height: 100%;
+            font: 10pt "Helvetica Neue", Arial, Helvetica, sans-serif;
+        }
+
+        .lorem {
+            font-style: italic;
+            text-align: justify;
+            color: #AAA;
+        }
+    </style>
+</head>
+<body>
+    <!-- optionally define the sidebar content via HTML markup -->
+    <div id="sidebar" class="leaflet-sidebar collapsed">
+
+        <!-- nav tabs -->
+        <div class="leaflet-sidebar-tabs">
+            <!-- top aligned tabs -->
+            <ul role="tablist">
+                <li><a href="#home" role="tab"><i class="fa fa-bars active"></i></a></li>
+                <li><a href="#autopan" role="tab"><i class="fa fa-building" aria-hidden="true"></i></i></a></li>
+				<li><a href="#risco" role="tab"><i class="fa fa-cogs" aria-hidden="true"></i></i></a></li>
+            </ul>
+
+            <!-- bottom aligned tabs -->
+            <ul role="tablist">
+                <li><a href="https://github.com/nickpeihl/leaflet-sidebar-v2"><i class="fa fa-github"></i></a></li>
+            </ul>
+        </div>
+
+        <!-- panel content -->
+        <div class="leaflet-sidebar-content">
+            <div class="leaflet-sidebar-pane" id="home">
+                <h1 class="leaflet-sidebar-header">
+                    RiskCoast project
+                    <span class="leaflet-sidebar-close"><i class="fa fa-caret-left"></i></span>
+                </h1>
+				<br>
+				<img src="../img/logo.png" width="100%">
+                <p>The RISKCOAST project focuses its work on the development of innovative tools, methodologies and solutions focused on the prevention and management of geological risks on the coast in a more effective way. The products obtained will support the 3 phases of emergency management: prevention, response and rehabilitation. RISKCOAST will establish a transnational cooperation network to deal commonly with the geological risks of the SUDOE coastal territory. <a href="https://riskcoast.eu/en">RiskCoast</a>.</p>
+
+                <h4>Improve the coordination and effectiveness of prevention instruments</h4>
+                <p class="lorem">Detection of risks on the coast and their associated impacts, through the use of effective cartographic tools that help in territorial planning.</p>
+                <p class="lorem">Integrated study of coastal dynamics and the impact of extreme events.</p>
+                <h4>Optimizing disaster management</h4>
+                <p class="lorem">Development of computer, cartographic and mathematical tools to help early warning and disaster management systems.</p>
+                <p class="lorem">Transnational pilot experience: participatory simulation of an emergency with cascading risks applying the tools developed.</p>
+                <h4>Rehabilitation of disaster areas</h4>
+                <p class="lorem">Promote a change of mentality in society towards more natural, durable and less costly rehabilitation and prevention measures.</p>
+                <p class="lorem">Concrete actions will be projected for the areas most vulnerable to risk and adapted to each type of coast.</p>				
+				
+			</div>
+
+            <div class="leaflet-sidebar-pane" id="autopan">
+                <h1 class="leaflet-sidebar-header">
+                    Análise da exposição
+                    <span class="leaflet-sidebar-close"><i class="fa-solid fa-house-water"></i></span>
+                </h1>
+                <p>
+                    <h2>Análise dos elementos expostos aos perigos climáticos no município de Setúbal.</h2> <br>
+					<b>[1]</b> Escolha o cenário climático:
+					<select name="cenario">
+					  <option value="0">Cenário Atual</option>
+					  <option value="45">Cenário Futuro RCP 4.5</option>
+					  <option value="85">Cenário Futuro RCP 8.5</option>
+					</select><br>
+					<br><b>[2]</b> Escolha os perigos:<br>
+					<input type="checkbox" id="perigo1" name="Instabilidade de vertentes" value="perigo1">
+					<label for="perigo1"> Instabilidade de vertentes</label><br>
+					<input type="checkbox" id="perigo2" name="Inundações por cheias rápidas" value="perigo2">
+					<label for="perigo2"> Inundações por cheias rápidas</label><br>
+					<input type="checkbox" id="perigo3" name="Inundações estuarinas" value="perigo3">
+					<label for="perigo3"> Inundações estuarinas</label><br>					
+					<input type="checkbox" id="perigo4" name="Inundações e galgamentos costeiros" value="perigo4">
+					<label for="perigo4"> Inundações e galgamentos costeiros</label><br>	
+					<input type="checkbox" id="perigo5" name="Erosão e recuo de arribas" value="perigo5">
+					<label for="perigo5"> Erosão e recuo de arribas</label><br><br>
+					<br><b>[3]</b> Calcular a exposição:<br>
+					<p><button onclick="calculaExposicao()">Processar</button>		
+                </p>
+            </div>
+            <div class="leaflet-sidebar-pane" id="risco">
+                <h1 class="leaflet-sidebar-header">
+                    Análise do risco
+                    <span class="leaflet-sidebar-close"><i class="fa-solid fa-house-water"></i></span>
+                </h1>
+                <p>
+                    <h2>Análise de risco</h2> <br>
+					<p>Esta análise baseia-se num índice de risco multi-perigo, que combina os três principais componentes do risco: a suscetibilidade, a exposição e a vulnerabilidade. O Índice de Risco Multiperigo (IRM) é adimensional e resulta do produto da suscetibilidade (S), da Exposição (E) e da Vulnerabilidade (V).</p> <br>
+					<b>[1]</b> Escolha o cenário climático:
+					<select name="cenario">
+					  <option value="0">Cenário Atual</option>
+					  <option value="45">Cenário Futuro RCP 4.5</option>
+					  <option value="85">Cenário Futuro RCP 8.5</option>
+					</select><br>
+					<br><b>[2]</b> Escolha os perigos:<br>
+					<input type="checkbox" id="perigo1" name="Instabilidade de vertentes" value="perigo1">
+					<label for="perigo1"> Instabilidade de vertentes</label><br>
+					<input type="checkbox" id="perigo2" name="Inundações por cheias rápidas" value="perigo2">
+					<label for="perigo2"> Inundações por cheias rápidas</label><br>
+					<input type="checkbox" id="perigo3" name="Inundações estuarinas" value="perigo3">
+					<label for="perigo3"> Inundações estuarinas</label><br>					
+					<input type="checkbox" id="perigo4" name="Inundações e galgamentos costeiros" value="perigo4">
+					<label for="perigo4"> Inundações e galgamentos costeiros</label><br>	
+					<input type="checkbox" id="perigo5" name="Erosão e recuo de arribas" value="perigo5">
+					<label for="perigo5"> Erosão e recuo de arribas</label><br><br>
+					<br><b>[3]</b> Calcular o risco:<br>
+					<p><button onclick="sidebar.enablePanel(\'mail\')">Processar</button>
+					
+                </p>
+            </div>
+
+            <div class="leaflet-sidebar-pane" id="messages">
+                <h1 class="leaflet-sidebar-header">Messages<span class="leaflet-sidebar-close"><i class="fa fa-caret-left"></i></span></h1>
+            </div>
+        </div>
+    </div>
+
+    <div id="map"></div>
+  
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+        crossorigin=""></script>
+		
+	<link rel="stylesheet" href="../css/L.Control.Layers.Tree.css" crossorigin=""/>
+    <script src="../js/L.Control.Layers.Tree.js"></script>
+	<script src='https://npmcdn.com/@turf/turf/turf.min.js'></script>	
+			
+    <script src="../js/leaflet-sidebar.js"></script>
+	<script src="../data/suscetibilidade/cheiasrapidas_atual.geojson"></script>
+	<script src="../data/suscetibilidade/galgamentos_atual.geojson"></script>
+	<script src="../data/suscetibilidade/inundacaoestuarina_atual.geojson"></script>
+	<script src="../data/suscetibilidade/recuoarribas_atual.geojson"></script>
+	<script src="../data/suscetibilidade/cheiasrapidas_rcp45.geojson"></script>
+	<script src="../data/suscetibilidade/galgamentos_rcp45.geojson"></script>
+	<script src="../data/suscetibilidade/inundacaoestuarina_rcp45.geojson"></script>
+	<script src="../data/suscetibilidade/recuoarribas_rcp45.geojson"></script>
+	<script src="../data/suscetibilidade/cheiasrapidas_rcp85.geojson"></script>
+	<script src="../data/suscetibilidade/galgamentos_rcp85.geojson"></script>
+	<script src="../data/suscetibilidade/inundacaoestuarina_rcp85.geojson"></script>
+	<script src="../data/suscetibilidade/recuoarribas_rcp85.geojson"></script>
+	<script src="../data/exposicao/rodovias.geojson"></script>
+	<script src="../data/exposicao/ferrovias.geojson"></script>
+	<script src="../data/risco/risco_multihazatual.geojson"></script>
+	<script src="../data/risco/risco_multihazrcp45.geojson"></script>
+	<script src="../data/risco/risco_multihazrcp85.geojson"></script>
+	<script src="../data/risco/suscetibilidade_multihazatual.geojson"></script>
+	<script src="../data/risco/suscetibilidade_multihazrcp45.geojson"></script>
+	<script src="../data/risco/suscetibilidade_multihazrcp85.geojson"></script>
+	<script src="../data/risco/exposicao_multihazatual.geojson"></script>
+	<script src="../data/risco/exposicao_multihazrcp45.geojson"></script>
+	<script src="../data/risco/exposicao_multihazrcp85.geojson"></script>
+	<script src="../data/risco/vulnerabilidadesocial_atual.geojson"></script>
+	<script src="../data/risco/vulnerabilidadesocial_rcp45.geojson"></script>
+	<script src="../data/risco/vulnerabilidadesocial_rcp85.geojson"></script>	
+
+    <script>
+        // standard leaflet map setup
+        var map = L.map('map');
+        map.setView([38.542117932644935, -8.88517171392668], 12);
+        var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: 'Map data &copy; OpenStreetMap contributors'
+        }).addTo(map);
+        //L.marker([38.542117932644935, -8.88517171392668]).addTo(map);
+		//LAYERS DA SUSCETIBILIDADE ATUAL
+		var cheiasrapidasatualLayer = new L.geoJSON(cheiasrapidasatualData,{
+			style: cheiasrapidasatualStyle,
+			//onEachFeature: gardenOnEachFeature
+		});                  
+		cheiasrapidasatualLayer.addTo(map);
+		var galgamentosatualLayer = new L.geoJSON(galgamentosatualData,{
+			style: galgamentosatualStyle,
+			//onEachFeature: gardenOnEachFeature
+		});                  
+		galgamentosatualLayer.addTo(map);		
+		var inundacoesestuarinaatualLayer = new L.geoJSON(inundacaoestuarinaatualData,{
+			style: inundacoesestuarinaatualStyle,
+			//onEachFeature: gardenOnEachFeature
+		});                  
+		inundacoesestuarinaatualLayer.addTo(map);		
+		var recuoarribasatualLayer = new L.geoJSON(recuoarribasatualData,{
+			style: recuoarribasatualStyle,
+			//onEachFeature: gardenOnEachFeature
+		});                  
+		recuoarribasatualLayer.addTo(map);		
+		//LAYERS DA SUSCETIBILIDADE RCP45
+		var cheiasrapidasrcp45Layer = new L.geoJSON(cheiasrapidasrcp45Data,{
+			style: cheiasrapidasatualStyle,
+			//onEachFeature: gardenOnEachFeature
+		});                  
+		cheiasrapidasrcp45Layer.addTo(map);
+		var galgamentosrcp45Layer = new L.geoJSON(galgamentosrcp45Data,{
+			style: galgamentosatualStyle,
+			//onEachFeature: gardenOnEachFeature
+		});                  
+		galgamentosrcp45Layer.addTo(map);		
+		var inundacoesestuarinarcp45Layer = new L.geoJSON(inundacaoestuarinarcp45Data,{
+			style: inundacoesestuarinaatualStyle,
+			//onEachFeature: gardenOnEachFeature
+		});                  
+		inundacoesestuarinarcp45Layer.addTo(map);		
+		var recuoarribasrcp45Layer = new L.geoJSON(recuoarribasrcp45Data,{
+			style: recuoarribasatualStyle,
+			//onEachFeature: gardenOnEachFeature
+		});                  
+		recuoarribasrcp45Layer.addTo(map);		
+		//LAYERS DA SUSCETIBILIDADE RCP85
+		var cheiasrapidasrcp85Layer = new L.geoJSON(cheiasrapidasrcp85Data,{
+			style: cheiasrapidasatualStyle,
+			//onEachFeature: gardenOnEachFeature
+		});                  
+		cheiasrapidasrcp85Layer.addTo(map);
+		var galgamentosrcp85Layer = new L.geoJSON(galgamentosrcp85Data,{
+			style: galgamentosatualStyle,
+			//onEachFeature: gardenOnEachFeature
+		});                  
+		galgamentosrcp85Layer.addTo(map);		
+		var inundacoesestuarinarcp85Layer = new L.geoJSON(inundacaoestuarinarcp85Data,{
+			style: inundacoesestuarinaatualStyle,
+			//onEachFeature: gardenOnEachFeature
+		});                  
+		inundacoesestuarinarcp85Layer.addTo(map);		
+		var recuoarribasrcp85Layer = new L.geoJSON(recuoarribasrcp85Data,{
+			style: recuoarribasatualStyle,
+			//onEachFeature: gardenOnEachFeature
+		});                  
+		recuoarribasrcp85Layer.addTo(map);
+		//LAYERS DA EXPOSIÇÃO
+		var rodoviaLayer = new L.geoJSON(rodoviasData,{
+			style: rodoviaStyle,
+			//onEachFeature: gardenOnEachFeature
+		});                  
+		rodoviaLayer.addTo(map);
+		var ferroviaLayer = new L.geoJSON(ferroviasData,{
+			style: ferroviaStyle,
+			//onEachFeature: gardenOnEachFeature
+		});                  
+		ferroviaLayer.addTo(map);		
+		//LAYERS DO RISCO
+		var riscomultihazatualLayer = new L.geoJSON(riscomultihazatualData,{
+			//style: ferroviaStyle,
+			//onEachFeature: gardenOnEachFeature
+		});                  
+		//riscomultihazatualLayer.addTo(map);		
+		var riscomultihazrcp45Layer = new L.geoJSON(riscomultihazrcp45Data,{
+			//style: ferroviaStyle,
+			//onEachFeature: gardenOnEachFeature
+		});                  
+		//riscomultihazrcp45Layer.addTo(map);
+		var riscomultihazrcp85Layer = new L.geoJSON(riscomultihazrcp85Data,{
+			//style: ferroviaStyle,
+			//onEachFeature: gardenOnEachFeature
+		});                  
+		//riscomultihazrcp85Layer.addTo(map);
+		var suscetibilidademultihazatualLayer = new L.geoJSON(suscetibilidademultihazatualData,{
+			//style: ferroviaStyle,
+			//onEachFeature: gardenOnEachFeature
+		});                  
+		//suscetibilidademultihazatualLayer.addTo(map);		
+		var suscetibilidademultihazrcp45Layer = new L.geoJSON(suscetibilidademultihazrcp45Data,{
+			//style: ferroviaStyle,
+			//onEachFeature: gardenOnEachFeature
+		});                  
+		//suscetibilidademultihazrcp45Layer.addTo(map);
+		var suscetibilidademultihazrcp85Layer = new L.geoJSON(suscetibilidademultihazrcp85Data,{
+			//style: ferroviaStyle,
+			//onEachFeature: gardenOnEachFeature
+		});                  
+		//suscetibilidademultihazrcp85Layer.addTo(map);
+		var exposicaomultihazatualLayer = new L.geoJSON(exposicaomultihazatualData,{
+			//style: ferroviaStyle,
+			//onEachFeature: gardenOnEachFeature
+		});                  
+		//exposicaomultihazatualLayer.addTo(map);		
+		var exposicaomultihazrcp45Layer = new L.geoJSON(exposicaomultihazrcp45Data,{
+			//style: ferroviaStyle,
+			//onEachFeature: gardenOnEachFeature
+		});                  
+		//exposicaomultihazrcp45Layer.addTo(map);
+		var exposicaomultihazrcp85Layer = new L.geoJSON(exposicaomultihazrcp85Data,{
+			//style: ferroviaStyle,
+			//onEachFeature: gardenOnEachFeature
+		});                  
+		//exposicaomultihazrcp85Layer.addTo(map);		
+		var vulnerabilidadesocialatualLayer = new L.geoJSON(vulnerabilidadesocialatualData,{
+			//style: ferroviaStyle,
+			//onEachFeature: gardenOnEachFeature
+		});                  
+		//vulnerabilidadesocialatualLayer.addTo(map);		
+		var vulnerabilidadesocialrcp45Layer = new L.geoJSON(vulnerabilidadesocialrcp45Data,{
+			//style: ferroviaStyle,
+			//onEachFeature: gardenOnEachFeature
+		});                  
+		//vulnerabilidadesocialrcp45Layer.addTo(map);
+		var vulnerabilidadesocialrcp85Layer = new L.geoJSON(vulnerabilidadesocialrcp85Data,{
+			//style: ferroviaStyle,
+			//onEachFeature: gardenOnEachFeature
+		});                  
+		//vulnerabilidadesocialrcp85Layer.addTo(map);		
+		
+		
+		// CRIA A TREEVIEW
+        var baseTree = [
+            {
+                label: 'OpenStreetMap',
+                layer: osm,
+                children: [
+                    {label: 'B&W', layer: osm, name: 'OpenStreetMap <b>B&W</b>'},
+                    
+                ]
+            },
+        ];
+
+        var granada = L.marker([37.133, -3.636]);
+        var malaga = L.marker([36.674, -4.499]);
+        var sevilla = L.marker([37.418, -5.893]);
+
+        //malaga.addTo(map);
+        //granada.addTo(map);
+        //sevilla.addTo(map);
+
+        var overlaysTree = {
+            label: 'Risco atual e futuro',
+            selectAllCheckbox: 'Un/select all',
+            children: [
+                {label: '<div id="onlysel">-Show only selected-</div>'},
+                {label: 'Suscetibilidade',
+                    selectAllCheckbox: 'De/seleccionar todo',
+                    children: [
+                        {label: 'Cenario Atual', selectAllCheckbox: true, children: [
+                            {label: 'cheiasrapidasatualLayer', layer: cheiasrapidasatualLayer},
+                            {label: 'galgamentosatualLayer', layer: galgamentosatualLayer},
+                            {label: 'inundacoesestuarinaatualLayer', layer: inundacoesestuarinaatualLayer},
+							{label: 'recuoarribasatualLayer', layer: recuoarribasatualLayer},
+                        ]},
+                        {label: 'Cenario Futuro, RCP 4.5', selectAllCheckbox: true, children: [
+                            {label: 'cheiasrapidasatualLayer', layer: cheiasrapidasrcp45Layer},
+                            {label: 'galgamentosatualLayer', layer: galgamentosrcp45Layer},
+                            {label: 'inundacoesestuarinaatualLayer', layer: inundacoesestuarinarcp45Layer},
+							{label: 'recuoarribasatualLayer', layer: recuoarribasrcp45Layer},
+                        ]},
+                        {label: 'Cenario Futuro, RCP 8.5', selectAllCheckbox: true, children: [
+                            {label: 'cheiasrapidasatualLayer', layer: cheiasrapidasrcp85Layer},
+                            {label: 'galgamentosatualLayer', layer: galgamentosrcp85Layer},
+                            {label: 'inundacoesestuarinaatualLayer', layer: inundacoesestuarinarcp85Layer},
+							{label: 'recuoarribasatualLayer', layer: recuoarribasrcp85Layer},
+                        ]},
+                    ],
+                },
+				{label: 'Exposição',
+                    selectAllCheckbox: 'De/seleccionar todo',
+                    children: [
+                        {label: 'Edifícios e residentes', selectAllCheckbox: true, children: [
+                            {label: 'Edifícios', layer: malaga},
+                            {label: 'Alojamentos', layer: malaga},
+							{label: 'População residente', layer: malaga},
+                        ]},
+						{label: 'Equipamentos estratégicos, vitais e/ou sensíveis', children: [
+                            {label: 'Equipamentos ligados à proteção civil', layer: granada},
+                            {label: 'Equipamentos de saúde', layer: malaga},
+                            {label: 'Equipamentos de educação', layer: sevilla},
+							{label: 'Equipamentos sociais', layer: sevilla},
+							{label: 'Equipamentos culturais', layer: sevilla},
+							{label: 'Equipamentos turísticos', layer: sevilla},
+                        ]},
+                        {label: 'Vias', children: [
+                            {label: 'Ferrovia', layer: ferroviaLayer},
+                            {label: 'Rodovia', layer: rodoviaLayer},
+                        ]},
+                    ],
+                },
+				{label: 'Vulnerabilidade',
+                    selectAllCheckbox: 'De/seleccionar todo',
+                    children: [
+                        {label: 'Cenario Atual', selectAllCheckbox: true, children: [
+                            {label: 'Granada', layer: granada},
+                            {label: 'Malaga', layer: malaga},
+                            {label: 'Sevilla', layer: sevilla},
+                        ]},
+                        {label: 'Cenario Futuro, RCP 4.5', children: [
+                            {label: 'Granada', layer: granada},
+                            {label: 'Malaga', layer: malaga},
+                            {label: 'Sevilla', layer: sevilla},
+                        ]},
+                        {label: 'Cenario Futuro, RCP 8.5', children: [
+                            {label: 'Granada', layer: granada},
+                            {label: 'Malaga', layer: malaga},
+                            {label: 'Sevilla', layer: sevilla},
+                        ]},
+                    ],
+                },                
+                {label: 'Risco',
+                    selectAllCheckbox: 'De/seleccionar todo',
+                    children: [
+                        {label: 'Cenário Atual', selectAllCheckbox: true, children: [
+                            {label: 'Multirisco', layer: riscomultihazatualLayer},
+                            {label: 'Multiperigo', layer: suscetibilidademultihazatualLayer},
+                            {label: 'Multiexposição', layer: exposicaomultihazatualLayer},
+							{label: 'Vulnerabilidade Social', layer: vulnerabilidadesocialatualLayer},
+                        ]},
+                        {label: 'Cenário Futuro, RCP 4.5', children: [
+                            {label: 'Multirisco', layer: riscomultihazrcp45Layer},
+                            {label: 'Multiperigo', layer: suscetibilidademultihazrcp45Layer},
+                            {label: 'Multiexposição', layer: exposicaomultihazrcp45Layer},
+							{label: 'Vulnerabilidade Social', layer: vulnerabilidadesocialrcp45Layer},
+                        ]},
+                        {label: 'Cenário Futuro, RCP 8.5', children: [
+                            {label: 'Multirisco', layer: riscomultihazrcp85Layer},
+                            {label: 'Multiperigo', layer: suscetibilidademultihazrcp85Layer},
+                            {label: 'Multiexposição', layer: exposicaomultihazrcp85Layer},
+							{label: 'Vulnerabilidade Social', layer: vulnerabilidadesocialrcp85Layer},
+                        ]},
+                    ],
+                },
+            ]
+        }
+
+        var lay = L.control.layers.tree(baseTree, overlaysTree,
+            {
+                namedToggle: true,
+                selectorBack: false,
+                closedSymbol: '&#8862; &#x1f5c0;',
+                openedSymbol: '&#8863; &#x1f5c1;',
+                collapseAll: 'Collapse all',
+                expandAll: 'Expand all',
+                collapsed: false,
+            });
+
+        lay.addTo(map).collapseTree().expandSelected().collapseTree(true);
+        L.DomEvent.on(L.DomUtil.get('onlysel'), 'click', function() {
+            lay.collapseTree(true).expandSelected(true);
+        });		
+
+
+        // create the sidebar instance and add it to the map
+        var sidebar = L.control.sidebar({ container: 'sidebar' })
+            .addTo(map)
+            .open('home');
+
+        // be notified when a panel is opened
+        sidebar.on('content', function (ev) {
+            switch (ev.id) {
+                case 'autopan':
+                sidebar.options.autopan = true;
+                break;
+                default:
+                sidebar.options.autopan = false;
+            }
+        });
+
+        var userid = 0
+        function addUser() {
+            sidebar.addPanel({
+                id:   'user' + userid++,
+                tab:  '<i class="fa fa-user"></i>',
+                title: 'User Profile ' + userid,
+                pane: '<p>user ipsum dolor sit amet</p>',
+            });
+        }
+		
+		function getColor(d) {
+		return d == "Elevada" ? '#ff0000' :
+           d == "Moderada"  ? '#ff7f00' :
+           d == "Reduzida"  ? '#ffff00' :
+                      '#FFEDA0';
+		}		
+		function cheiasrapidasatualStyle(feature) {
+		return {
+			fillColor: getColor(feature.properties.Suscet),
+			weight: 0,
+			opacity: 1,
+			color: 'white',
+			dashArray: '3',
+			fillOpacity: 0.7
+			};
+		}
+		function galgamentosatualStyle(feature) {
+		return {
+			fillColor: '#0000ff',
+			weight: 0,
+			opacity: 1,
+			color: 'white',
+			dashArray: '3',
+			fillOpacity: 0.7
+			};
+		}
+		function inundacoesestuarinaatualStyle(feature) {
+		return {
+			fillColor: '#377eb8',
+			weight: 0,
+			opacity: 1,
+			color: 'white',
+			dashArray: '3',
+			fillOpacity: 0.7
+			};
+		}
+		function recuoarribasatualStyle(feature) {
+		return {
+			fillColor: '#f781bf',
+			weight: 0,
+			opacity: 1,
+			color: 'white',
+			dashArray: '3',
+			fillOpacity: 0.7
+			};
+		}	
+		function rodoviaStyle(feature) {
+		return {
+			weight: 3,
+			opacity: 1,
+			color: 'red',
+			//dashArray: '20, 20',
+			dashOffset: '0',
+			fillOpacity: 0.7
+			};
+		}		
+		function ferroviaStyle(feature) {
+		return {
+			weight: 3,
+			opacity: 1,
+			color: 'black',
+			dashArray: '10, 10',
+			dashOffset: '0',
+			fillOpacity: 0.7
+			};
+		}
+
+		function calculaExposicao() {
+		  		map.fitBounds(rodoviaLayer.getBounds());
+
+				rodoviaLayer.geometry.coordinates.forEach(part => {
+				  let split = turf.lineSplit(turf.lineString(part), cheiasrapidasatualLayer);
+				  let oddPair;
+				  if(turf.booleanPointInPolygon(turf.point(part[0]), cheiasrapidasatualLayer)){
+					oddPair = 0;
+				  } else {
+					oddPair = 1;
+				  }
+				  split.features.forEach((splitedPart, i) => {
+					if((i + oddPair)%2 === 0) {
+					  L.geoJSON(splitedPart.geometry).addTo(map);
+					}
+				  });
+				});
+		}
+		
+
+
+		
+    </script>
+</body>
+</html>

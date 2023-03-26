@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simulador Risco</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<meta charset="UTF-8">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+        crossorigin=""/>
+
+    <link rel="stylesheet" href="css/leaflet-sidebar.css" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<script src="js/simulador.js"></script>
+	<script>
+	var subjectObject = {
+	  "CASTELO BRANCO": {
+		"OLEIROS": ["Álvaro", "Cambas", "Estreito-Vilar Barroco", "Isna", "Madeirã", "Mosteiro", "Oleiros-Amieira", "Orvalho", "Sarnadas de São Simão", "Sobral"],
+		"PROENÇA-A-NOVA": ["Montes da Senhora", "São Pedro do Esteval", "União das freguesias de Proença-a-Nova e Peral", "União das freguesias de Sobreira Formosa e Alvito da Beira"],
+		"SERTÃ": ["Cabeçudo", "Carvalhal", "Castelo", "Pedrógão Pequeno", "Sertã", "Troviscal", "União das freguesias de Cernache do Bonjardim, Nesperal e Palhais", "União das freguesias de Cumeada e Marmeleiro", "União das freguesias de Ermida e Figueiredo", "Várzea dos Cavaleiros"],
+		"VILA DE REI": ["Fundada", "São João do Peso", "Vila de Rei"]
+	  },
+	  "COIMBRA": {
+		"ARGANIL": ["Arganil", "Benfeita", "Celavisa", "Folques", "Piódão", "Pomares", "Pombeiro da Beira", "São Martinho da Cortiça", "Sarzedo", "Secarias", "União das freguesias de Cepos e Teixeira", "União das freguesias de Cerdeira e Moura da Serra", "União das freguesias de Côja e Barril de Alva", "União das freguesias de Vila Cova de Alva e Anseriz"],
+		"GÓIS": ["Alvares", "Góis", "União das freguesias de Cadafaz e Colmeal", "Vila Nova do Ceira"],
+		"LOUSÃ": ["Gândaras", "Serpins", "União das freguesias de Foz de Arouce e Casal de Ermio", "União das freguesias de Lousã e Vilarinho"],
+		"MIRANDA DO CORVO": ["Lamas", "Miranda do Corvo", "União das freguesias de Semide e Rio Vide", "Vila Nova"],
+		"OLIVEIRA DO HOSPITAL": ["Aldeia das Dez", "Alvoco das Várzeas", "Avô", "Bobadela", "Lagares", "Lourosa", "Meruge", "Nogueira do Cravo", "São Gião", "Seixo da Beira", "Travanca de Lagos", "União das freguesias de Ervedal e Vila Franca da Beira", "União das freguesias de Lagos da Beira e Lajeosa", "União das freguesias de Oliveira do Hospital e São Paio de Gramaços", "União das freguesias de Penalva de Alva e São Sebastião da Feira", "União das freguesias de Santa Ovaia e Vila Pouca da Beira"],
+		"PAMPILHOSA DA SERRA": ["Cabril", "Dornelas do Zêzere", "Fajão-Vidual", "Janeiro de Baixo", "Pampilhosa da Serra", "Pessegueiro", "Portela do Fojo-Machio", "Unhais-o-Velho"],
+		"PENELA": ["Cumeeira", "Espinhal", "Podentes", "União das freguesias de São Miguel, Santa Eufémia e Rabaçal"],
+		"TÁBUA": ["Candosa", "Carapinha", "Midões", "Mouronho", "Póvoa de Midões", "São João da Boa Vista", "Tábua", "União das freguesias de Ázere e Covelo", "União das freguesias de Covas e Vila Nova de Oliveirinha", "União das freguesias de Espariz e Sinde", "União das freguesias de Pinheiro de Coja e Meda de Mouros"],
+		"VILA NOVA DE POIARES": ["Arrifana", "Lavegadas", "Poiares (Santo André)", "São Miguel de Poiares"]
+	  },
+	  "LEIRIA": {
+		"ALVAIÁZERE": ["Almoster", "Alvaiázere", "Maçãs de Dona Maria", "Pelmá", "Pussos São Pedro"],
+		"ANSIÃO": ["Alvorge", "Ansião", "Avelar", "Chão de Couce", "Pousaflores", "Santiago da Guarda"],
+		"CASTANHEIRA DE PÊRA": ["União das freguesias de Castanheira de Pêra e Coentral"],
+		"FIGUEIRÓ DOS VINHOS": ["Aguda", "Arega", "Campelo", "União das freguesias de Figueiró dos Vinhos e Bairradas"],
+		"PEDRÓGÃO GRANDE": ["Graça", "Pedrógão Grande", "Vila Facaia"]
+	  },
+	  "SANTARÉM": {
+		"MAÇÃO": ["Amêndoa", "Cardigos", "Carvoeiro", "Envendos", "Ortiga", "União das freguesias de Mação, Penhascoso e Aboboreira"]
+	  }
+	}
+	window.onload = function() {
+	  var distritoSel = document.getElementById("distrito");
+	  var concelhoSel = document.getElementById("concelho");
+	  var freguesiaSel = document.getElementById("freguesia");
+	  for (var x in subjectObject) {
+		distritoSel.options[distritoSel.options.length] = new Option(x, x);
+	  }
+	  distritoSel.onchange = function() {
+	    //empty Distritos- and Concelhos- dropdowns
+	    freguesiaSel.length = 1;
+	    concelhoSel.length = 1;
+		//display correct values
+		for (var y in subjectObject[this.value]) {
+		  concelhoSel.options[concelhoSel.options.length] = new Option(y, y);
+		}
+	  }
+	  concelhoSel.onchange = function() {
+	    //empty Freguesias dropdown
+	    freguesiaSel.length = 1;
+		//display correct values
+		var z = subjectObject[distritoSel.value][this.value];
+		for (var i = 0; i < z.length; i++) {
+		  freguesiaSel.options[freguesiaSel.options.length] = new Option(z[i], z[i]);
+		}
+	  }
+	  freguesiaSel.onchange = function() {
+	    //empty Chapters dropdown
+		var freguesiaSel = document.getElementById("freguesia").value;
+		document.getElementById("processar").disabled = false;
+		setmaxarea();
+	  }	   	  	  
+	}
+	</script>
+
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        html, body, #map {
+            height: 100%;
+            font: 10pt "Helvetica Neue", Arial, Helvetica, sans-serif;
+        }
+
+        .lorem {
+            font-style: italic;
+            text-align: justify;
+            color: #AAA;
+        }
+		
+		/* Center the loader */
+		#loader {
+		  position: absolute;
+		  left: 50%;
+		  top: 50%;
+		  z-index: 1;
+		  width: 120px;
+		  height: 120px;
+		  margin: -76px 0 0 -76px;
+		  border: 16px solid #f3f3f3;
+		  border-radius: 50%;
+		  border-top: 16px solid #3498db;
+		  -webkit-animation: spin 2s linear infinite;
+		  animation: spin 2s linear infinite;
+		}
+
+		@-webkit-keyframes spin {
+		  0% { -webkit-transform: rotate(0deg); }
+		  100% { -webkit-transform: rotate(360deg); }
+		}
+
+		@keyframes spin {
+		  0% { transform: rotate(0deg); }
+		  100% { transform: rotate(360deg); }
+		}
+
+		/* Add animation to "page content" */
+		.animate-bottom {
+		  position: relative;
+		  -webkit-animation-name: animatebottom;
+		  -webkit-animation-duration: 1s;
+		  animation-name: animatebottom;
+		  animation-duration: 1s
+		}
+
+		@-webkit-keyframes animatebottom {
+		  from { bottom:-100px; opacity:0 } 
+		  to { bottom:0px; opacity:1 }
+		}
+
+		@keyframes animatebottom { 
+		  from{ bottom:-100px; opacity:0 } 
+		  to{ bottom:0; opacity:1 }
+		}
+
+		#myDiv {
+		  display: none;
+		  text-align: center;
+		}
+		.options {
+			position: absolute;
+			top: 12px;
+			right: 235px;
+			z-index: 20000;
+		}
+    </style>
+</head>
+<body>
+	 <div id="loader"></div>
+    <!-- optionally define the sidebar content via HTML markup -->
+    <div id="sidebar" class="leaflet-sidebar collapsed">
+
+        <!-- nav tabs -->
+        <div class="leaflet-sidebar-tabs">
+            <!-- top aligned tabs -->
+            <ul role="tablist">
+                <li><a href="#home" role="tab"><i class="fa fa-bars active"></i></a></li>
+			    <li><a href="#simulador" role="tab"><i class="fa fa-info" aria-hidden="true"></i></i></a></li>				
+				<li><a href="#legenda" role="tab"><i class="fa fa-map" aria-hidden="true"></i></i></a></li>
+            </ul>
+
+            <!-- bottom aligned tabs -->
+            <ul role="tablist">
+                <li><a href="https://github.com/nmileu/peopleandfire"><i class="fa fa-github"></i></a></li>
+            </ul>
+        </div>
+
+        <!-- panel content -->
+        <div class="leaflet-sidebar-content">
+            <div class="leaflet-sidebar-pane" id="simulador">
+                <h1 class="leaflet-sidebar-header">
+                   People&Fire: Reducing Risk, Living with Risk
+                    <span class="leaflet-sidebar-close"><i class="fa fa-caret-left"></i></span>
+                </h1>
+				<br>
+				<img src="img/logo.png" width="100%">
+                <p>This project aims at refocusing the wildfire problem by assuming that many of those practices are rational within the current policy and socioeconomic setting. <a href="https://www.ics.ulisboa.pt/en/projeto/PeopleFire">People&Fire: Reducing Risk, Living with Risk</a>.</p>
+                <h4>Description</h4>
+                <p class="lorem">Understanding people’s current choices and how policy can actually change them is key to design effective risk-reduction policies.</p>
+                <h4>Study area</h4>
+                <p class="lorem">The study area used to develop and test the analytical framework is the region of Pinhal Interior, a hilly region where forest and scrubland dominate the land cover, forest ownership is very-small-scale, population density is low and people live in dispersed settlements, as ‘islands in a forest sea’.</p>
+                <p class="lorem">This was one of the most seriously hit areas in the wildfires of 2017.</p>
+                <p class="lorem">This project will advance the state of the art mostly through expanding the interdisciplinary boundary of the scientific knowledge about wildfires and wildfire policy, by linking together those 3 key scientific areas, in addition to the abovementioned, more specialized innovations.</p>
+				<h4>Results</h4>
+                <p class="lorem">The main result of the proposed research is a tested new analytical framework to support the development and evaluation of new, integrated and people-centred policy approaches to wildfires.</p>
+                <p class="lorem">A policy brief, a decision-support platform and several guidelines for best practices on adaptation and emergency self-defensive strategies will be produced.</p>								
+			</div>
+
+            <div class="leaflet-sidebar-pane" id="home">
+                <h1 class="leaflet-sidebar-header">
+                    Simulador
+                    <span class="leaflet-sidebar-close"><i class="fa-solid fa-house-water"></i></span>
+                </h1>
+                <p>
+                    <h3>Análise de risco por freguesia em função da alteração do uso do solo (Cenário To-Be).</h3>
+					<b>[1]</b> Selecione o distrito\concelho\freguesia:<br>
+					<form name="form1" id="form1"">
+					Distrito: <select name="distrito" id="distrito">
+						<option value="" selected="selected">Selecione o distrito</option>
+					  </select>
+					  <br><br>
+					Concelho: <select name="concelho" id="concelho">
+						<option value="" selected="selected">Selecione o concelho</option>
+					  </select>
+					  <br><br>
+					Freguesia: <select name="freguesia" id="freguesia">
+						<option value="" selected="selected">Selecione a freguesia</option>
+					  </select>
+					  <br><br>
+					   
+					</form>
+					<b>[2]</b> Defina a área (ha) e a classes de uso do solo a alterar:<br><br>					
+					<form>
+					<input type="radio" id="radioagricultura" name="opcaosimulacao" value="1" checked="checked">	
+					<input type="number" id="agricultura_ha" name="agricultura_ha" value="0" min="0" max="17152" onkeyup=imposeMinMax(this) style="width: 50px;">
+					<label for="agricultura_ha">ha <b>Agrícolas</b> »</label>
+					<select name="agricultura2other" id="agricultura2other" style="width: 100px;">
+					  <option value="2">Folhosas</option>
+					  <option value="3">Eucalipto</option>
+					  <option value="4">Invasoras</option>
+					  <option value="5">Pinheiro Bravo</option>
+					  <option value="6">Outros Pinheiro</option>
+					  <option value="7">Matos</option>
+					  <option value="8">Não combustível</option>					  
+					</select>					
+					<hr>
+					<input type="radio" id="radiofolhosas" name="opcaosimulacao" value="2">
+					<input type="number" id="folhosas_ha" name="folhosas_ha" value="0" min="0" max="17152" onkeyup=imposeMinMax(this) style="width: 50px;">
+					<label for="folhosas_ha">ha de <b>Folhosas</b> »</label>
+					<select name="folhosas2other" id="folhosas2other" style="width: 100px;">
+					  <option value="1">Agricultura</option>
+					  <option value="3">Eucalipto</option>
+					  <option value="4">Invasoras</option>
+					  <option value="5">Pinheiro Bravo</option>
+					  <option value="6">Outros Pinheiro</option>
+					  <option value="7">Matos</option>
+					  <option value="8">Não combustível</option>					  
+					</select>					
+					<hr>					
+					<input type="radio" id="radioeucalipto" name="opcaosimulacao" value="3">				
+					<input type="number" id="eucalipto_ha" name="eucalipto_ha" value="0" min="0" max="17152" onkeyup=imposeMinMax(this) style="width: 50px;">
+					<label for="eucalipto_ha">ha de <b>Eucalipto</b> »</label>
+					<select name="eucalipto2other" id="eucalipto2other" style="width: 90px;">
+					  <option value="1">Agricultura</option>
+					  <option value="2">Folhosas</option>
+					  <option value="4">Invasoras</option>
+					  <option value="5">Pinheiro Bravo</option>
+					  <option value="6">Outros Pinheiro</option>
+					  <option value="7">Matos</option>
+					  <option value="8">Não combustível</option>					  
+					</select>					
+					<hr>
+					<input type="radio" id="radioinvasoras" name="opcaosimulacao" value="4">	
+					<input type="number" id="invasoras_ha" name="invasoras_ha" value="0" min="0" max="17152" onkeyup=imposeMinMax(this) style="width: 50px;">					
+					<label for="invasoras_ha">ha de <b>Invasoras</b> »</label>
+					<select name="invasoras2other" id="invasoras2other" style="width: 100px;">
+					  <option value="1">Agricultura</option>
+					  <option value="2">Folhosas</option>
+					  <option value="3">Eucalipto</option>
+					  <option value="5">Pinheiro Bravo</option>
+					  <option value="6">Outros Pinheiro</option>
+					  <option value="7">Matos</option>
+					  <option value="8">Não combustível</option>					  
+					</select>					
+					<hr>
+					<input type="radio" id="radiopinheirobravo" name="opcaosimulacao" value="5">
+					<input type="number" id="pinheirobravo_ha" name="pinheirobravo_ha" value="0" min="0" max="17152" onkeyup=imposeMinMax(this) style="width: 50px;">
+					<label for="pinheirobravo_ha">ha <b>Pinheiro Bravo</b>»</label>
+					<select name="pinheirobravo2other" id="pinheirobravo2other" style="width: 100px;">
+					  <option value="1">Agricultura</option>
+					  <option value="2">Folhosas</option>
+					  <option value="3">Eucalipto</option>
+					  <option value="4">Invasoras</option>
+					  <option value="6">Outros Pinheiro</option>
+					  <option value="7">Matos</option>
+					  <option value="8">Não combustível</option>					  
+					</select>					
+					<hr>
+					<input type="radio" id="radiooutrospinheiros" name="opcaosimulacao" value="6">
+					<input type="number" id="outrospinheiros_ha" name="outrospinheiros_ha" value="0" min="0" max="17152" onkeyup=imposeMinMax(this) style="width: 50px;">
+					<label for="outrospinheiros_ha">ha <b>Outros Pinheiros</b> »</label>
+					<select name="outrospinheiros2other" id="outrospinheiros2other" style="width: 90px;">
+					  <option value="1">Agricultura</option>
+					  <option value="2">Folhosas</option>
+					  <option value="3">Eucalipto</option>
+					  <option value="4">Invasoras</option>
+					  <option value="5">Pinheiro Bravo</option>
+					  <option value="7">Matos</option>
+					  <option value="8">Não combustível</option>					  
+					</select>					
+					<hr>
+					<input type="radio" id="radiomatos" name="opcaosimulacao" value="7">
+					<input type="number" id="matos_ha" name="matos_ha" value="0" min="0" max="17152" onkeyup=imposeMinMax(this) style="width: 50px;">
+					<label for="matos_ha">ha de <b>Matos</b> »</label>
+					<select name="matos2other" id="matos2other" style="width: 100px;">
+					  <option value="1">Agricultura</option>
+					  <option value="2">Folhosas</option>
+					  <option value="3">Eucalipto</option>
+					  <option value="4">Invasoras</option>
+					  <option value="5">Pinheiro Bravo</option>
+					  <option value="6">Outros Pinheiros</option>
+					  <option value="8">Não combustível</option>					  
+					</select>					
+					<hr>
+					<input type="radio" id="radionaocombustivel" name="opcaosimulacao" value="8">
+					<input type="number" id="naocombustivel_ha" name="naocombustivel_ha" value="0" min="0" max="17152" onkeyup=imposeMinMax(this) style="width: 50px;">
+					<label for="naocombustivel_ha">ha <b>Não Combustíveis</b> »</label>
+					<select name="naocombustivel2other" id="naocombustivel2other" style="width: 80px;">
+					  <option value="1">Agricultura</option>
+					  <option value="2">Folhosas</option>
+					  <option value="3">Eucalipto</option>
+					  <option value="4">Invasoras</option>
+					  <option value="5">Pinheiro Bravo</option>
+					  <option value="6">Outros Pinheiros</option>
+					  <option value="7">Matos</option>					  
+					</select>					
+					<hr>
+					</form>
+					<br><b>[3]</b> Calcular o risco:<br>
+					<p><button id="processar" onclick="calculaRisco()" disabled>Processar</button><button id="removeSimulacao" class="btn"onclick="limpaSimulacao();" disabled><i class="fa fa-trash"></i></button></p>
+									
+            </div>
+
+            <div class="leaflet-sidebar-pane" id="legenda">
+                <h1 class="leaflet-sidebar-header">
+                    Legenda
+                    <span class="leaflet-sidebar-close"><i class="fa fa-globe"></i></span>
+                </h1>
+                <p>
+				<h4>Risco</h4>
+				<img src="img/risco_pt.png" width="25%">
+				<h4>Perigosidade</h4>
+				<img src="img/perigosidade_pt.png" width="25%">
+				<h4>Exposição</h4>
+				<img src="img/exposicao_pt.png" width="25%">
+				<h4>Vulnerabilidade</h4>
+				<img src="img/vulnerabilidade_pt.png" width="35%">
+                </p>
+            </div>			
+
+            <div class="leaflet-sidebar-pane" id="messages">
+                <h1 class="leaflet-sidebar-header">Messages<span class="leaflet-sidebar-close"><i class="fa fa-caret-left"></i></span></h1>
+            </div>
+        </div>
+    </div>
+	
+	
+    <div id="map"></div>
+  
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+        crossorigin=""></script>
+		
+	<link rel="stylesheet" href="css/L.Control.Layers.Tree.css" crossorigin=""/>
+    <script src="js/L.Control.Layers.Tree.js"></script>
+	<script src='https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js'></script>
+	
+			
+    <script src="js/leaflet-sidebar.js"></script>
+	<script src="data/freguesias.geojson"></script>
+	
+    <script>
+        // standard leaflet map setup
+        var map = L.map('map');
+        map.setView([39.99430288311408, -8.146862301084116], 9);
+		L.control.scale().addTo(map);
+        var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: 'Map data &copy; OpenStreetMap contributors'
+        }).addTo(map);
+		
+		//LAYERS DA PERIGOSIDADE DE INCÊNDIO RURAL
+		var freguesiaSel = document.getElementById("freguesia").value;
+		var freguesiaselLayer = L.geoJson(freguesiasData, { 
+				style: indriscoincStyle,
+				onEachFeature: onEachfreguesiaSel,
+				filter: function(feature) { return feature.properties.Freguesia == freguesiaSel }
+			});
+		
+		var areadeestudoLayer = new L.geoJSON(freguesiasData,{
+			//style: hazardStyle,
+			onEachFeature: onEachFeature
+		});
+		areadeestudoLayer.addTo(map);		
+		var hazardLayer = new L.geoJSON(freguesiasData,{
+			style: hazardStyle,
+			//onEachFeature: gardenOnEachFeature
+		});
+		//hazardLayer.addTo(map);		
+		//LAYERS DA PERIGOSIDADE DE INCÊNDIO RURAL
+		var exposicaoLayer = new L.geoJSON(freguesiasData,{
+			style: exposicaoStyle,
+			//onEachFeature: gardenOnEachFeature
+		});
+		//exposicaoLayer.addTo(map);		
+		//LAYERS DA PERIGOSIDADE DE INCÊNDIO RURAL
+		var vsocialLayer = new L.geoJSON(freguesiasData,{
+			style: vsocialStyle,
+			//onEachFeature: gardenOnEachFeature
+		});
+		//vsocialLayer.addTo(map);		
+		//LAYERS DA PERIGOSIDADE DE INCÊNDIO RURAL
+		var indriscoincLayer = new L.geoJSON(freguesiasData,{
+			style: indriscoincStyle,
+			//onEachFeature: gardenOnEachFeature
+		});
+		//indriscoincLayer.addTo(map);		
+		
+		
+		// CRIA A TREEVIEW
+        var baseTree = [
+            {
+                label: 'OpenStreetMap',
+                layer: osm,
+                children: [
+                    {label: 'B&W', layer: osm, name: 'OpenStreetMap <b>B&W</b>'},
+                    
+                ]
+            },
+        ];
+
+
+        var overlaysTree = {
+            label: 'Temas do Cenário As-Is',
+            selectAllCheckbox: 'Un/select all',
+            children: [
+                {label: '<div id="onlysel">-Show only selected-</div>'},
+                {label: 'Risco',
+                    selectAllCheckbox: 'De/seleccionar todo',
+                    children: [                        
+							{label: 'Risco de Incêndio Rural', layer: indriscoincLayer},                      
+                    ],
+                },                
+				{label: 'Perigosidade',
+                    selectAllCheckbox: 'De/seleccionar todo',
+                    children: [                        
+							{label: 'Perigosidade de Incêndio Rural', layer: hazardLayer},                      
+                    ],
+                },
+                {label: 'Exposição',
+                    selectAllCheckbox: 'De/seleccionar todo',
+                    children: [                        
+							{label: 'Exposição aos Incêndios Rurais', layer: exposicaoLayer},                      
+                    ],
+                },
+                {label: 'Vulnerabilidade',
+                    selectAllCheckbox: 'De/seleccionar todo',
+                    children: [                        
+							{label: 'Vulnerabilidade Social', layer: vsocialLayer},                      
+                    ],
+                },
+            ]
+        }
+
+        var lay = L.control.layers.tree(baseTree, overlaysTree,
+            {
+                namedToggle: true,
+                selectorBack: false,
+                closedSymbol: '&#8862; &#x1f5c0;',
+                openedSymbol: '&#8863; &#x1f5c1;',
+                collapseAll: 'Collapse all',
+                expandAll: 'Expand all',
+                collapsed: false,
+            });
+
+        lay.addTo(map).collapseTree().expandSelected().collapseTree(true);
+        L.DomEvent.on(L.DomUtil.get('onlysel'), 'click', function() {
+            lay.collapseTree(true).expandSelected(true);
+        });		
+
+
+        // create the sidebar instance and add it to the map
+        var sidebar = L.control.sidebar({ container: 'sidebar' })
+            .addTo(map)
+            .open('home');
+
+        // be notified when a panel is opened
+        sidebar.on('content', function (ev) {
+            switch (ev.id) {
+                case 'autopan':
+                sidebar.options.autopan = true;
+                break;
+                default:
+                sidebar.options.autopan = false;
+            }
+        });
+		
+// Estilo dos temas
+		function getCorHazard(d) {
+			return d > 1.0 ? '#800026' :
+				   d > 0.6  ? '#BD0026' :
+				   d > 0.5  ? '#E31A1C' :
+				   d > 0.4  ? '#FC4E2A' :
+				   d > 0.3   ? '#FD8D3C' :
+				   d > 0.2   ? '#FEB24C' :
+				   d > 0.1   ? '#FED976' :
+							  '#f0f0f0';
+		}	
+		function hazardStyle(feature) {
+			return {
+				fillColor: getCorHazard(feature.properties.HAZARD_SCALEDMAX),
+				weight: 1,
+				opacity: 1,
+				color: 'white',
+				dashArray: '3',
+				fillOpacity: 1.0
+			};
+		}
+
+		function getCorExposicao(d) {
+			return d > 1.0 ? '#d7191c' :
+				   d > 0.6  ? '#ed6e43' :
+				   d > 0.5  ? '#feba6e' :
+				   d > 0.4  ? '#ffe8a4' :
+				   d > 0.3   ? '#b7dfe3' :
+				   d > 0.2   ? '#75b1d3' :
+				   d > 0.1   ? '#2c7bb6' :
+							  '#f0f0f0';;
+		}	
+		function exposicaoStyle(feature) {
+			return {
+				fillColor: getCorExposicao(feature.properties.ESPOSICAO_SCALEDMAX),
+				weight: 1,
+				opacity: 1,
+				color: 'white',
+				dashArray: '3',
+				fillOpacity: 1.0
+			};
+		}
+		function getCorVsocial(d) {
+			return d > 1.0 ? '#d7191c' :
+				   d > 0.6  ? '#ed6e43' :
+				   d > 0.5  ? '#feba6e' :
+				   d > 0.4  ? '#ffe8a4' :
+				   d > 0.3   ? '#b7dfe3' :
+				   d > 0.2   ? '#75b1d3' :
+				   d > 0.1   ? '#2c7bb6' :
+							  '#f0f0f0';
+		}	
+		function vsocialStyle(feature) {
+			return {
+				fillColor: getCorVsocial(feature.properties.VSOCIAL_SCALEDMAX),
+				weight: 1,
+				opacity: 1,
+				color: 'white',
+				dashArray: '3',
+				fillOpacity: 1.0
+			};
+		}
+		function getCorIndRiscoInc(d) {
+			return d > 1.0 ? '#800026' :
+				   d > 0.6  ? '#BD0026' :
+				   d > 0.5  ? '#E31A1C' :
+				   d > 0.4  ? '#FC4E2A' :
+				   d > 0.3   ? '#FD8D3C' :
+				   d > 0.2   ? '#FEB24C' :
+				   d > 0.1   ? '#FED976' :
+							  '#f0f0f0';
+		}	
+		function indriscoincStyle(feature) {
+			return {
+				fillColor: getCorIndRiscoInc(feature.properties.INDRISCOINC_MAX),
+				weight: 1,
+				opacity: 1,
+				color: 'white',
+				dashArray: '3',
+				fillOpacity: 1.0
+			};
+		}
+
+		// Função onEachFeature para ver os atributos
+		function onEachFeature(feature, layer) {
+			// does this feature have a property named popupContent?
+			if (feature.properties && feature.properties.Freguesia) {
+				layer.bindPopup("Cenário As-Is<hr><br/><b>Freguesia: </b>"+feature.properties.Freguesia+"<br/>"
+								+"<b>Agricultura(ha): </b>"+Number(feature.properties.AGRICULTURA_HA).toFixed(0)+"<br/>"
+								+"<b>Folhosas(ha): </b>"+Number(feature.properties.FOLHOSAS_HA).toFixed(0)+"<br/>"
+								+"<b>Eucalipto(ha): </b>"+Number(feature.properties.EUCALIPTO_HA).toFixed(0)+"<br/>"
+								+"<b>Invasoras(ha): </b>"+Number(feature.properties.INVASORAS_HA).toFixed(0)+"<br/>"
+								+"<b>Pinheiro Bravo(ha): </b>"+Number(feature.properties.PINHEIRO_BRAVO_HA).toFixed(0)+"<br/>"
+								+"<b>Outros Pinheiros(ha): </b>"+Number(feature.properties.OUTROS_PINHEIROS_HA).toFixed(0)+"<br/>"
+								+"<b>Matos(ha): </b>"+Number(feature.properties.MATOS_HA).toFixed(0)+"<br/>"
+								+"<b>Não Combustível(ha): </b>"+Number(feature.properties.NAOCOMBUSTIVEL_HA).toFixed(0)								
+				);
+			}
+		}
+		function onEachfreguesiaSel(feature, layer) {
+			// does this feature have a property named popupContent?
+			layer.myTag = "myGeoJSON";
+			if (feature.properties && feature.properties.Freguesia) {
+				layer.bindPopup("Cenário To-Be<hr><br/><b>Freguesia: </b>"+feature.properties.Freguesia+"<br/>"
+				+"<b>Perigosidade(0-1): </b>"+Number(feature.properties.HAZARD_SCALEDMAX).toFixed(2)+"<br/>"
+				+"<b>Risco(0-1): </b>"+Number(feature.properties.INDRISCOINC_MAX).toFixed(2)+"<br/>"
+				);
+			}
+		}
+		
+		
+		function limpaSimulacao() {
+
+		map.eachLayer( function(layer) {
+
+        if ( layer.myTag &&  layer.myTag === "myGeoJSON") {
+            map.removeLayer(layer)
+              }
+        });
+		document.getElementById("agricultura_ha").value = "0";
+		document.getElementById("folhosas_ha").value = "0";
+		document.getElementById("eucalipto_ha").value = "0";
+		document.getElementById("invasoras_ha").value = "0";
+		document.getElementById("pinheirobravo_ha").value = "0";
+		document.getElementById("outrospinheiros_ha").value = "0";
+		document.getElementById("matos_ha").value = "0";
+		document.getElementById("naocombustivel_ha").value = "0";
+	
+		map.fitBounds(areadeestudoLayer.getBounds());
+		
+		}
+		//
+       // Função para cálculo de risco
+	   //
+        function calculaRisco() {
+			document.getElementById("removeSimulacao").disabled = false;
+			//SELECIONAR VALOR DA SIMULAÇÃO NOS RADIOBUTTONS
+			var radios = document.getElementsByName("opcaosimulacao");
+			var found = 1;
+			for (var i = 0; i < radios.length; i++) {       
+				if (radios[i].checked) {
+					var simulacaoValue =(radios[i].value);
+					found = 0;
+					break;
+				}
+			}			
+			//EXECUTA SIMULAÇÃO EM FUNÇÃO DO USO DO SOLO A TRANSFERIR
+			switch (simulacaoValue) { //ESCOLHA 
+			  case "1":
+				simula1();			
+				break;
+			  case "2":
+				simula2();
+				break;
+			  case "3":
+				simula3();
+				break;
+			  case "4":
+				simula4();
+				break;
+			  case "5":
+				simula5();
+				break;
+			  case "6":
+				simula6();
+				break;
+			  case "7":
+				simula7();
+			  case "8":
+				simula8();
+
+			}					
+			  
+		}
+				
+		
+    </script>
+</body>
+</html>
